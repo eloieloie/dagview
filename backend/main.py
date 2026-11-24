@@ -212,14 +212,17 @@ def api_sql_preview(req: SqlPreviewRequest):
     forbidden = ("insert", "update", "delete", "drop", "create", "alter", "attach", "copy", "pragma")
     if any(lowered.startswith(kw) for kw in forbidden):
         raise HTTPException(400, "only read-only SELECT queries are allowed in the preview")
+    con = None
     try:
         con = duckdb.connect(DUCKDB_PATH, read_only=True)
         result = con.execute(f"{sql} LIMIT {min(req.limit, 500)}")
         cols = [d[0] for d in result.description]
         rows = result.fetchall()
-        con.close()
     except Exception as e:
         raise HTTPException(400, str(e))
+    finally:
+        if con is not None:
+            con.close()
     return {"columns": cols, "rows": [list(r) for r in rows]}
 
 
@@ -229,10 +232,12 @@ def api_tables():
     if not Path(DUCKDB_PATH).exists():
         return []
     con = duckdb.connect(DUCKDB_PATH, read_only=True)
-    rows = con.execute(
-        "select table_schema, table_name, table_type from information_schema.tables order by 1,2"
-    ).fetchall()
-    con.close()
+    try:
+        rows = con.execute(
+            "select table_schema, table_name, table_type from information_schema.tables order by 1,2"
+        ).fetchall()
+    finally:
+        con.close()
     return [{"schema": r[0], "name": r[1], "type": r[2]} for r in rows]
 
 
