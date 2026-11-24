@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fct_sqlite_orders
+    description: "Fact table: one row per order from the SQLite source pair, with customer + item rollups."
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_sqlite_customer_summary
+    description: "Per-customer lifetime rollup built on top of fct_sqlite_orders."
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null

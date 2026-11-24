@@ -4,4 +4,13 @@ dagview_demo:
     dev:
       type: duckdb
       path: "{{ env_var('DAGVIEW_DUCKDB_PATH', '/app/data/dagview.duckdb') }}"
+      extensions:
+        - sqlite
+      attach:
+        - path: "sqlite_data/db1_customers.sqlite"
+          type: sqlite
+          alias: db1
+        - path: "sqlite_data/db2_orders.sqlite"
+          type: sqlite
+          alias: db2
       threads: 4

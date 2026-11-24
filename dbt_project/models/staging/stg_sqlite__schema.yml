@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: sqlite_sources
+    schema: main
+
+models:
+  - name: stg_sqlite_customers
+    description: "Customers staged from the attached SQLite source DB1 (db1_customers.sqlite)."
+    columns:
+      - name: customer_id
+        description: "Primary key for a customer."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sqlite_orders
+    description: "Orders staged from the attached SQLite source DB2 (db2_orders.sqlite)."
+    columns:
+      - name: order_id
+        description: "Primary key for an order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to stg_sqlite_customers."
+        tests:
+          - not_null
+
+  - name: stg_sqlite_order_items
+    description: "Order line items staged from the attached SQLite source DB2 (db2_orders.sqlite)."
+    columns:
+      - name: order_item_id
+        description: "Primary key for an order line item."
+        tests:
+          - unique
+          - not_null
