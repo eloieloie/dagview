@@ -1,4 +1,7 @@
-const BASE = '/api'
+// Use the app's own mount path (Vite's configured `base`, e.g. '/dagview/')
+// so API calls still hit this app's backend when served from a subpath
+// behind a reverse proxy, instead of resolving to the site root.
+const BASE = (import.meta.env.BASE_URL.replace(/\/$/, '')) + '/api'
 
 async function j(path, opts) {
   const res = await fetch(BASE + path, opts)
