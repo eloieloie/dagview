@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "One row per order, joined with customer attributes."
+  - name: dim_customers
+    description: "One row per customer with lifetime value metrics."
+  - name: mart_revenue_by_month
+    description: "Monthly revenue rollup for completed orders."

@@ -1,0 +1,7 @@
+dagview_demo:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DAGVIEW_DUCKDB_PATH', '/app/data/dagview.duckdb') }}"
+      threads: 4

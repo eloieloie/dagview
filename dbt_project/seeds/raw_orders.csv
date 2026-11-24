@@ -1,0 +1,16 @@
+id,customer_id,order_date,status,amount
+101,1,2025-02-01,completed,42.50
+102,1,2025-03-12,completed,18.00
+103,2,2025-02-10,completed,99.99
+104,3,2025-03-01,completed,15.25
+105,3,2025-03-20,cancelled,15.25
+106,4,2025-03-10,completed,250.00
+107,5,2025-04-01,completed,12.00
+108,5,2025-04-15,completed,12.00
+109,6,2025-04-20,completed,75.00
+110,6,2025-05-01,completed,30.00
+111,7,2025-05-02,completed,8.75
+112,8,2025-05-10,completed,120.00
+113,9,2025-05-20,completed,45.00
+114,10,2025-06-01,completed,60.00
+115,2,2025-06-05,completed,10.00

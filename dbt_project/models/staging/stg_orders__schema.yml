@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: seed_sources
+    schema: main
+
+models:
+  - name: stg_customers
+    description: "Cleaned customer records from the raw seed."
+    columns:
+      - name: customer_id
+        description: "Primary key for a customer."
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Customer email address."
+
+  - name: stg_orders
+    description: "Cleaned order records from the raw seed."
+    columns:
+      - name: order_id
+        description: "Primary key for an order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to stg_customers."
+        tests:
+          - not_null
+      - name: status
+        description: "Order status: completed or cancelled."
