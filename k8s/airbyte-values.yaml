@@ -36,16 +36,20 @@ postgresql:
     appArmorProfile:
       type: Unconfined
 
-webapp:
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 250m
-      memory: 256Mi
+# NOTE: `webapp` was removed as a separate component in Airbyte 1.8.0 —
+# its UI was merged directly into `airbyte-server` (no more webapp image
+# is published; `webapp.enabled: true` just fails to pull an image that
+# no longer exists). The UI is served by airbyte-server itself on its
+# existing port (8001), exposed via a NodePort below.
 
 server:
+  # Note: this chart's server service template doesn't support pinning
+  # nodePort explicitly -- Kubernetes auto-assigns one in the NodePort
+  # range (30000-32767). Check the actual assigned port with:
+  #   kubectl get svc airbyte-airbyte-server-svc -n airbyte
+  service:
+    type: NodePort
+    port: 8001
   resources:
     requests:
       cpu: 100m

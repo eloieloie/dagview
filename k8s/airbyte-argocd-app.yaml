@@ -41,11 +41,16 @@ spec:
               type: Unconfined
             appArmorProfile:
               type: Unconfined
-        webapp:
-          resources:
-            requests: {cpu: 50m, memory: 128Mi}
-            limits: {cpu: 250m, memory: 256Mi}
+        # NOTE: webapp was removed as a separate component in Airbyte 1.8.0 --
+        # its UI is now served directly by airbyte-server (no webapp image
+        # is published anymore). Exposed via NodePort below on the server
+        # service itself.
         server:
+          # Note: nodePort cannot be pinned on this chart's server service
+          # template -- Kubernetes auto-assigns one (30000-32767 range).
+          service:
+            type: NodePort
+            port: 8001
           resources:
             requests: {cpu: 100m, memory: 512Mi}
             limits: {cpu: 500m, memory: 1Gi}
