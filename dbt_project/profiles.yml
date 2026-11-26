@@ -5,12 +5,17 @@ dagview_demo:
       type: duckdb
       path: "{{ env_var('DAGVIEW_DUCKDB_PATH', '/app/data/dagview.duckdb') }}"
       extensions:
-        - sqlite
+        - postgres
+      # The two source SQLite DBs (db1_customers.sqlite, db2_orders.sqlite)
+      # are no longer attached directly. Instead they're synced by Airbyte
+      # (File source -> Postgres destination) into a dedicated landing
+      # database (dagview_raw) inside the Airbyte Postgres instance, and
+      # DuckDB attaches that via its postgres scanner. This makes the
+      # sqlite_data files the *origin* of the data but the real read path
+      # for dbt is: SQLite -> CSV export -> Airbyte sync -> Postgres ->
+      # DuckDB (attached here) -> dbt staging/marts.
       attach:
-        - path: "sqlite_data/db1_customers.sqlite"
-          type: sqlite
-          alias: db1
-        - path: "sqlite_data/db2_orders.sqlite"
-          type: sqlite
-          alias: db2
+        - path: "dbname=dagview_raw host=airbyte-db-svc.airbyte.svc.cluster.local port=5432 user=airbyte password=airbyte"
+          type: postgres
+          alias: airbyte_raw
       threads: 4

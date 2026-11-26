@@ -17,14 +17,19 @@ COPY frontend_dist/ /app/frontend_dist/
 
 RUN mkdir -p /app/data/logs
 
-# Seed + build the dbt project + generate docs at image build time so the app
-# has data and lineage available immediately on first start.
+# NOTE: dbt seed/run/test/docs generate used to run here at image *build*
+# time. That broke once the sqlite-sourced models started reading from a
+# Postgres landing zone fed by Airbyte (dagview_raw on
+# airbyte-db-svc.airbyte.svc.cluster.local) -- that hostname only resolves
+# inside the Kubernetes cluster network, which `docker build` doesn't have.
+# So the initial dbt build now happens at *container startup* instead (see
+# docker-entrypoint.sh), once the pod is actually running on the cluster
+# network and can reach the Airbyte Postgres service.
 ENV DBT_PROFILES_DIR=/app/dbt_project
-RUN cd /app/dbt_project && dbt seed --project-dir /app/dbt_project --profiles-dir /app/dbt_project \
-    && dbt run --project-dir /app/dbt_project --profiles-dir /app/dbt_project \
-    && dbt test --project-dir /app/dbt_project --profiles-dir /app/dbt_project || true \
-    && dbt docs generate --project-dir /app/dbt_project --profiles-dir /app/dbt_project
+COPY backend/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 8000
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

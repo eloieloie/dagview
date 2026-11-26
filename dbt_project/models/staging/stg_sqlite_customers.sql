@@ -1,8 +1,10 @@
--- Staging model over the attached SQLite source DB1 (db1_customers.sqlite)
+-- Staging model over the Airbyte-synced "customers" table.
+-- Lineage: db1_customers.sqlite -> CSV export -> Airbyte (File source
+-- -> Postgres destination) -> dagview_raw.public.customers -> here.
 select
     customer_id,
     name as customer_name,
     email,
     region,
     cast(signup_date as date) as signup_date
-from db1.main.customers
+from airbyte_raw.public.customers

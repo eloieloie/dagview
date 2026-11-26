@@ -1,12 +1,14 @@
 version: 2
 
-sources:
-  - name: sqlite_sources
-    schema: main
+# Note: these models used to read directly from attached SQLite files
+# (db1/db2 aliases). They now read from dagview_raw.public.* in the
+# Airbyte-fed Postgres landing zone (attached as `airbyte_raw`) --
+# see profiles.yml and dbt_project/README or model-level comments for
+# the full Airbyte sync lineage.
 
 models:
   - name: stg_sqlite_customers
-    description: "Customers staged from the attached SQLite source DB1 (db1_customers.sqlite)."
+    description: "Customers staged from the Airbyte-synced customers table (originally db1_customers.sqlite)."
     columns:
       - name: customer_id
         description: "Primary key for a customer."
@@ -15,7 +17,7 @@ models:
           - not_null
 
   - name: stg_sqlite_orders
-    description: "Orders staged from the attached SQLite source DB2 (db2_orders.sqlite)."
+    description: "Orders staged from the Airbyte-synced orders table (originally db2_orders.sqlite)."
     columns:
       - name: order_id
         description: "Primary key for an order."
@@ -28,7 +30,7 @@ models:
           - not_null
 
   - name: stg_sqlite_order_items
-    description: "Order line items staged from the attached SQLite source DB2 (db2_orders.sqlite)."
+    description: "Order line items staged from the Airbyte-synced order_items table (originally db2_orders.sqlite)."
     columns:
       - name: order_item_id
         description: "Primary key for an order line item."

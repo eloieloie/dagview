@@ -1,8 +1,10 @@
--- Staging model over the attached SQLite source DB2 (db2_orders.sqlite)
+-- Staging model over the Airbyte-synced "orders" table.
+-- Lineage: db2_orders.sqlite -> CSV export -> Airbyte (File source
+-- -> Postgres destination) -> dagview_raw.public.orders -> here.
 select
     order_id,
     customer_id,
     cast(order_date as date) as order_date,
     status,
     amount
-from db2.main.orders
+from airbyte_raw.public.orders
