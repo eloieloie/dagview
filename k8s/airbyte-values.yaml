@@ -1,0 +1,192 @@
+# Trimmed values for Airbyte OSS (community edition) on a small single-node
+# k3s box (4 vCPU / 7.1Gi RAM total, ~4.3Gi available). Disables components
+# not needed for a simple demo pipeline (auth/Keycloak, connector rollout
+# worker, connector-builder-server, metrics) and sets conservative resource
+# requests/limits on everything else so the whole stack fits comfortably
+# alongside ArgoCD + dagview + the other demo apps already on this node.
+
+global:
+  edition: community
+  auth:
+    enabled: false
+  storage:
+    type: minio
+  database:
+    database: postgres
+    host: airbyte-db-svc
+    port: 5432
+    user: airbyte
+    password: airbyte
+
+postgresql:
+  enabled: true
+  postgresqlUsername: airbyte
+  postgresqlPassword: airbyte
+  postgresqlDatabase: postgres
+  podSecurityContext:
+    fsGroup: 70
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 70
+    capabilities:
+      drop: []
+    seccompProfile:
+      type: Unconfined
+    appArmorProfile:
+      type: Unconfined
+
+webapp:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+server:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  livenessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 6
+
+worker:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  livenessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    failureThreshold: 6
+
+workload-launcher:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+  livenessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    failureThreshold: 6
+
+workload-api-server:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+  livenessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 6
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 6
+
+cron:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+temporal:
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop: []
+    seccompProfile:
+      type: Unconfined
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+temporal-ui:
+  enabled: false
+
+minio:
+  image:
+    repository: docker.io/bitnamilegacy/minio
+    tag: 2025.7.23-debian-12-r5
+    pullPolicy: IfNotPresent
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+airbyte-bootloader:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1536Mi
+
+# Disable components not needed for a simple demo deployment, to save
+# resources on this single-node box.
+connector-rollout-worker:
+  enabled: false
+
+connector-builder-server:
+  enabled: false
+
+keycloak:
+  enabled: false
+
+keycloak-setup:
+  enabled: false
+
+metrics:
+  enabled: false
