@@ -3,31 +3,6 @@ kind: Namespace
 metadata:
   name: airbyte
 ---
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: create-airbyte-db
-  namespace: airbyte
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-spec:
-  template:
-    spec:
-      containers:
-      - name: create-db
-        image: postgres:13-alpine
-        command:
-        - sh
-        - -c
-        - |
-          echo "Waiting for PostgreSQL..."
-          until PGPASSWORD=airbyte psql -h airbyte-db-svc -U airbyte -d postgres -c 'CREATE DATABASE "db-airbyte";'; do
-            sleep 3
-          done
-          echo "Database db-airbyte created successfully or already exists."
-      restartPolicy: OnFailure
----
 apiVersion: v1
 kind: Namespace
 metadata:
